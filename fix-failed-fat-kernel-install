@@ -32,5 +32,5 @@
 # After that, it moves the boot files to a temporary dir, mounts
 # the FAT partition and moves the boot files to it.
 
-bootFilesPattern="grub config-* initrd.img-* System.map-* vmlinuz-*"; sudo mkdir /tmp/boot && cd /boot && sudo cp -a $bootFilesPattern /tmp/boot && cd /tmp/boot && sudo umount /boot && sudo mv $bootFilesPattern /boot && apt --fix-broken install && \
+bootFilesPattern="grub config-* initrd.img-* System.map-* vmlinuz-*"; findmnt /boot && sudo mkdir /tmp/boot && cd /boot && sudo cp -a $bootFilesPattern /tmp/boot && cd /tmp/boot && sudo umount /boot && sudo mv $bootFilesPattern /boot && apt --fix-broken install && \
 cd /boot && sudo mv $bootFilesPattern /tmp/boot && sudo mount /boot && cd /tmp/boot && sudo mv $bootFilesPattern /boot && sudo rm -r /tmp/boot
