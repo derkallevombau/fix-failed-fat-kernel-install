@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Author: derkallevombau
+# Created 2021-04-09 23:55:29
+
+#. "$scriptsCommonInclude/cecho.sh"
+
+# Only to be used if the contents of /boot reside on a FAT partition
+# mounted at /boot in order to set the next OS to be booted from Windows
+# and you get the following error on a kernel upgrade:
+
+# Unpacking linux-image-5.10.0-5-amd64 (5.10.26-1) over (5.10.24-1) ...
+# dpkg: error processing archive /tmp/apt-dpkg-install-nd57yo/14-linux-image-5.10.0-5-amd64_5.10.26-1_amd64.deb (--unpack):
+#  unable to make backup link of './boot/System.map-5.10.0-5-amd64' before installing new version: Operation not permitted
+# dpkg-deb: error: paste subprocess was killed by signal (Broken pipe)
+# I: /vmlinuz is now a symlink to boot/vmlinuz-5.10.0-4-amd64
+# I: /initrd.img is now a symlink to boot/initrd.img-5.10.0-4-amd64
+# Preparing to unpack .../15-linux-libc-dev_5.10.26-1_amd64.deb ...
+# Unpacking linux-libc-dev:amd64 (5.10.26-1) over (5.10.24-1) ...
+# Errors were encountered while processing:
+#  /tmp/apt-dpkg-install-nd57yo/14-linux-image-5.10.0-5-amd64_5.10.26-1_amd64.deb
+# E: Sub-process /usr/bin/dpkg returned an error code (1)
+
+# This script copies the boot files from the FAT partition
+# to a temporary dir, unmounts the partition and moves the
+# files to /boot.
+
+# Then it executes apt --fix-broken install to resume the failed
+# installation, which will succeed now since a Linux filesystem
+# is used.
+
+# After that, it moves the boot files to a temporary dir, mounts
+# the FAT partition and moves the boot files to it.
+
+bootFilesPattern="grub config-* initrd.img-* System.map-* vmlinuz-*"; sudo mkdir /tmp/boot && cd /boot && sudo cp -a $bootFilesPattern /tmp/boot && cd /tmp/boot && sudo umount /boot && sudo mv $bootFilesPattern /boot && apt --fix-broken install && \
+cd /boot && sudo mv $bootFilesPattern /tmp/boot && sudo mount /boot && cd /tmp/boot && sudo mv $bootFilesPattern /boot && sudo rm -r /tmp/boot
